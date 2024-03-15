@@ -6,7 +6,7 @@ use std::f32::consts::{self, TAU};
 use std::ops::{Add, Mul, Sub};
 use std::simd::f32x2;
 
-/// A simple biquad filter with functions for generating coefficients for an all-pass filter.
+/// A simple biquad filter with functions for generating coefficients.
 /// Stolen from NIH-Plug examples
 ///
 /// Based on <https://en.wikipedia.org/wiki/Digital_biquad_filter#Transposed_direct_forms>.
@@ -14,7 +14,6 @@ use std::simd::f32x2;
 /// The type parameter T  should be either an `f32` or a SIMD type.
 #[derive(Clone, Copy, Debug)]
 pub struct Biquad<T> {
-    pub frequency: f32,
     pub coefficients: BiquadCoefficients<T>,
     s1: T,
     s2: T,
@@ -26,6 +25,7 @@ pub struct Biquad<T> {
 /// The type parameter T  should be either an `f32` or a SIMD type.
 #[derive(Clone, Copy, Debug)]
 pub struct BiquadCoefficients<T> {
+    frequency: f32,
     sample_rate: f32,
     b0: T,
     b1: T,
@@ -46,7 +46,6 @@ impl<T: SimdType> Default for Biquad<T> {
     /// Before setting constants the filter should just act as an identity function.
     fn default() -> Self {
         Self {
-            frequency: 0.0,
             coefficients: BiquadCoefficients::identity(),
             s1: T::from_f32(0.0),
             s2: T::from_f32(0.0),
@@ -78,6 +77,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
     #[must_use]
     pub fn from_f32s(scalar: BiquadCoefficients<f32>) -> Self {
         Self {
+            frequency: scalar.frequency,
             sample_rate: scalar.sample_rate,
             b0: T::from_f32(scalar.b0),
             b1: T::from_f32(scalar.b1),
@@ -91,7 +91,8 @@ impl<T: SimdType> BiquadCoefficients<T> {
     #[must_use]
     pub fn identity() -> Self {
         Self::from_f32s(BiquadCoefficients {
-            sample_rate: 0.0,
+            frequency: 0.0,
+            sample_rate: 1.0,
             b0: 1.0,
             b1: 0.0,
             b2: 0.0,
@@ -117,6 +118,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (1.0 - alpha) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -143,6 +145,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (1.0 - alpha) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -170,6 +173,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (1.0 - alpha) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -193,6 +197,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (1.0 - alpha) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -216,6 +221,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (1.0 - alpha) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -240,6 +246,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = b0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -273,6 +280,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (1.0 - alpha / a) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -303,6 +311,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (2.0 * sqrt_a).mul_add(-alpha, a_minus_one.mul_add(cos_omega0, a_plus_one)) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -333,6 +342,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a2 = (2.0 * sqrt_a).mul_add(-alpha, a_minus_one.mul_add(-cos_omega0, a_plus_one)) / a0;
 
         Self::from_f32s(BiquadCoefficients {
+            frequency,
             sample_rate,
             b0,
             b1,
@@ -340,6 +350,16 @@ impl<T: SimdType> BiquadCoefficients<T> {
             a1,
             a2,
         })
+    }
+
+    #[must_use]
+    pub const fn sample_rate(&self) -> f32 {
+        self.sample_rate
+    }
+
+    #[must_use]
+    pub const fn frequency(&self) -> f32 {
+        self.frequency
     }
 
     /// Get the frequency response of this filter at the given frequency.
