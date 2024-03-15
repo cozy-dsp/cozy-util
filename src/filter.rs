@@ -75,6 +75,7 @@ impl<T: SimdType> Default for BiquadCoefficients<T> {
 
 impl<T: SimdType> BiquadCoefficients<T> {
     /// Convert scalar coefficients into the correct vector type.
+    #[must_use]
     pub fn from_f32s(scalar: BiquadCoefficients<f32>) -> Self {
         Self {
             sample_rate: scalar.sample_rate,
@@ -87,6 +88,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
     }
 
     /// Filter coefficients that would cause the sound to be passed through as is.
+    #[must_use]
     pub fn identity() -> Self {
         Self::from_f32s(BiquadCoefficients {
             sample_rate: 0.0,
@@ -101,6 +103,7 @@ impl<T: SimdType> BiquadCoefficients<T> {
     /// Compute the coefficients for a lowpass filter.
     ///
     /// Based on <http://shepazu.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html>.
+    #[must_use]
     pub fn lowpass(sample_rate: f32, frequency: f32, q: f32) -> Self {
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
@@ -113,12 +116,20 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = (-2.0 * cos_omega0) / a0;
         let a2 = (1.0 - alpha) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
     /// Compute the coefficients for a hipass filter.
     ///
     /// Based on <http://shepazu.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html>.
+    #[must_use]
     pub fn hipass(sample_rate: f32, frequency: f32, q: f32) -> Self {
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
@@ -131,13 +142,21 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = (-2.0 * cos_omega0) / a0;
         let a2 = (1.0 - alpha) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
     /// Compute the coefficients for a bandpass filter.
     /// The skirt gain is constant, the peak gain is Q
     ///
     /// Based on <http://shepazu.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html>.
+    #[must_use]
     pub fn bandpass_peak(sample_rate: f32, frequency: f32, q: f32) -> Self {
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
@@ -150,9 +169,17 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = (-2.0 * cos_omega0) / a0;
         let a2 = (1.0 - alpha) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
+    #[must_use]
     pub fn bandpass(sample_rate: f32, frequency: f32, band_width: f32) -> Self {
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
@@ -165,9 +192,17 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = (-2.0 * cos_omega0) / a0;
         let a2 = (1.0 - alpha) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
+    #[must_use]
     pub fn notch(sample_rate: f32, frequency: f32, band_width: f32) -> Self {
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
@@ -180,9 +215,17 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = (-2.0 * cos_omega0) / a0;
         let a2 = (1.0 - alpha) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
+    #[must_use]
     pub fn allpass(sample_rate: f32, frequency: f32, q: f32) -> Self {
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
@@ -196,12 +239,20 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = b1;
         let a2 = b0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
     /// Compute the coefficients for a peaking bell filter.
     ///
     /// Based on <http://shepazu.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html>.
+    #[must_use]
     pub fn peaking_eq(sample_rate: f32, frequency: f32, db_gain: f32, q: f32) -> Self {
         //nih_debug_assert!(sample_rate > 0.0);
         //nih_debug_assert!(frequency > 0.0);
@@ -221,47 +272,74 @@ impl<T: SimdType> BiquadCoefficients<T> {
         let a1 = (-2.0 * cos_omega0) / a0;
         let a2 = (1.0 - alpha / a) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
+    #[must_use]
     pub fn low_shelf(sample_rate: f32, frequency: f32, db_gain: f32, slope: f32) -> Self {
         let a = 10_f32.powf(db_gain / 40.0);
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
-        let alpha = (sin_omega0 / 2.0) * ((a + a.recip()) * (slope.recip() - 1.0) + 2.0).sqrt();
+        let alpha = (sin_omega0 / 2.0) * (a + a.recip()).mul_add(slope.recip() - 1.0, 2.0).sqrt();
 
         let a_plus_one = a + 1.0;
         let a_minus_one = a - 1.0;
         let sqrt_a = a.sqrt();
 
-        let a0 = a_plus_one + a_minus_one * cos_omega0 + 2.0 * sqrt_a * alpha;
-        let b0 = (a * (a_plus_one - a_minus_one * cos_omega0 + 2.0 * sqrt_a * alpha)) / a0;
-        let b1 = (2.0 * a * (a_minus_one - a_plus_one * cos_omega0)) / a0;
-        let b2 = (a * (a_plus_one - a_minus_one * cos_omega0 - 2.0 * sqrt_a * alpha)) / a0;
-        let a1 = (-2.0 * (a_minus_one + a_plus_one * cos_omega0)) / a0;
-        let a2 = (a_plus_one + a_minus_one * cos_omega0 - 2.0 * sqrt_a * alpha) / a0;
+        let a0 = (2.0 * sqrt_a).mul_add(alpha, a_minus_one.mul_add(cos_omega0, a_plus_one));
+        let b0 =
+            (a * (2.0 * sqrt_a).mul_add(alpha, a_minus_one.mul_add(-cos_omega0, a_plus_one))) / a0;
+        let b1 = (2.0 * a * a_plus_one.mul_add(-cos_omega0, a_minus_one)) / a0;
+        let b2 =
+            (a * (2.0 * sqrt_a).mul_add(-alpha, a_minus_one.mul_add(-cos_omega0, a_plus_one))) / a0;
+        let a1 = (-2.0 * a_plus_one.mul_add(cos_omega0, a_minus_one)) / a0;
+        let a2 = (2.0 * sqrt_a).mul_add(-alpha, a_minus_one.mul_add(cos_omega0, a_plus_one)) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
+    #[must_use]
     pub fn high_shelf(sample_rate: f32, frequency: f32, db_gain: f32, slope: f32) -> Self {
         let a = 10_f32.powf(db_gain / 40.0);
         let omega0 = consts::TAU * (frequency / sample_rate);
         let (sin_omega0, cos_omega0) = omega0.sin_cos();
-        let alpha = (sin_omega0 / 2.0) * ((a + a.recip()) * (slope.recip() - 1.0) + 2.0).sqrt();
+        let alpha = (sin_omega0 / 2.0) * (a + a.recip()).mul_add(slope.recip() - 1.0, 2.0).sqrt();
 
         let a_plus_one = a + 1.0;
         let a_minus_one = a - 1.0;
         let sqrt_a = a.sqrt();
 
-        let a0 = a_plus_one - a_minus_one * cos_omega0 + 2.0 * sqrt_a * alpha;
-        let b0 = (a * (a_plus_one + a_minus_one * cos_omega0 + 2.0 * sqrt_a * alpha)) / a0;
-        let b1 = (-2.0 * a * (a_minus_one + a_plus_one * cos_omega0)) / a0;
-        let b2 = (a * (a_plus_one + a_minus_one * cos_omega0 - 2.0 * sqrt_a * alpha)) / a0;
-        let a1 = (2.0 * (a_minus_one - a_plus_one * cos_omega0)) / a0;
-        let a2 = (a_plus_one - a_minus_one * cos_omega0 - 2.0 * sqrt_a * alpha) / a0;
+        let a0 = (2.0 * sqrt_a).mul_add(alpha, a_minus_one.mul_add(-cos_omega0, a_plus_one));
+        let b0 =
+            (a * (2.0 * sqrt_a).mul_add(alpha, a_minus_one.mul_add(cos_omega0, a_plus_one))) / a0;
+        let b1 = (-2.0 * a * a_plus_one.mul_add(cos_omega0, a_minus_one)) / a0;
+        let b2 =
+            (a * (2.0 * sqrt_a).mul_add(-alpha, a_minus_one.mul_add(cos_omega0, a_plus_one))) / a0;
+        let a1 = (2.0 * a_plus_one.mul_add(-cos_omega0, a_minus_one)) / a0;
+        let a2 = (2.0 * sqrt_a).mul_add(-alpha, a_minus_one.mul_add(-cos_omega0, a_plus_one)) / a0;
 
-        Self::from_f32s(BiquadCoefficients { sample_rate, b0, b1, b2, a1, a2 })
+        Self::from_f32s(BiquadCoefficients {
+            sample_rate,
+            b0,
+            b1,
+            b2,
+            a1,
+            a2,
+        })
     }
 
     /// Get the frequency response of this filter at the given frequency.
