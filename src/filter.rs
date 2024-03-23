@@ -63,6 +63,11 @@ impl<T: SimdType> Biquad<T> {
 
         result
     }
+
+    pub fn reset(&mut self) {
+        self.s1 = T::from_f32(0.0);
+        self.s2 = T::from_f32(0.0);
+    }
 }
 
 impl<T: SimdType> Default for BiquadCoefficients<T> {
