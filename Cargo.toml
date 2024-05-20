@@ -2,8 +2,10 @@
 name = "cozy-util"
 version = "0.1.0"
 edition = "2021"
+license = "MPL-2.0"
+authors = ["joe sorensen <hi@cozydsp.space>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-num-complex = "0.4.5"
+num-complex = "0.4"
